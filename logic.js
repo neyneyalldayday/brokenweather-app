@@ -5,13 +5,13 @@ $(document).ready(function () {
     var APIkey = "e37669453cb2f31f17855c4bb977dcf2";
   var city = "";
   var searchStr = $(".search-bar");
-  var currentCity = $("<div>");
+  var currentCity = $("div");
   var searchButton = $(".fa-search");
   var clearSearches = $("#clear-button");
-  var currentUvindex = $("<div>");
-  var currentClimate = $("<div>");
-  var currentHumidity = $("<div>");
-  var currentWindSpeed = $("<div>");
+  var currentUvindex = $("div");
+  var currentClimate = $("div");
+  var currentHumidity = $("div");
+  var currentWindSpeed = $("div");
   //only real citys will run
   var rCity = [];
 

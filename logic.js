@@ -4,16 +4,16 @@ $(document).ready(function () {
     /* APPLICATION VARIABLES */
     var APIkey = "e37669453cb2f31f17855c4bb977dcf2";
   var city = "";
-  var searchStr = $(".search-bar");
-  var currentCity = $("div");
+  var searchStr = $(".search-bar"); 
+  var currentCity = $(".hometown");
   var searchButton = $(".fa-search");
   var clearSearches = $("#clear-button");
-  var currentUvindex = $("div");
-  var currentClimate = $("div");
-  var currentHumidity = $("div");
-  var currentWindSpeed = $("div");
+  var currentUvindex = $("#uvIndex");
+  var currentClimate = $("#currentClimate");
+  var currentHumidity = $("#currentHumid");
+  var currentWindSpeed = $("#windSpeed");
   //only real citys will run
-  var rCity = [];
+  var realCity = [];
 
 
     /* EVENT LISTENERS */
@@ -25,11 +25,12 @@ $(document).ready(function () {
 
 
     /* EVENT HANDLERS */
-    function displayWeather(event) {
+    function displayWeather(event) {     
       event.preventDefault();
       city = searchStr.val();
       if (city !== "") {
           getcurrentClimate(city);
+          console.log(city);
       }
   }
 
@@ -44,12 +45,12 @@ $(document).ready(function () {
     //saving searches so you can leave and refference the weather again
     function loadLastCity() {
       $(".cities").empty();
-      var rCity = JSON.parse(localStorage.getItem("cityname"));
-      if (rCity !== null) {
-        city = rCity[rCity.length - 1];
+      var realCity = JSON.parse(localStorage.getItem("cityname"));
+      if (realCity !== null) {
+        city = realCity[realCity.length - 1];
         getcurrentClimate(city);
             //load the last city in the rCity array
-          addToList(rCity[rCity.length-1]);
+          addToList(realCity[realCity.length-1]);
       }
      
   }
@@ -57,7 +58,7 @@ $(document).ready(function () {
     //if in any case you want to clear the search history. you can do so.
   function clearSearches(event) {
       event.preventDefault();
-      rCity = [];
+      realCity = [];
       localStorage.removeItem("cityname");
       document.location.reload();
   }
@@ -66,11 +67,12 @@ $(document).ready(function () {
     /* APPLICATION LOGIC */
 
   function getcurrentClimate(city) {
-      var queryURL = "https://api.openweathermap.org/data/2.5/weather?q=" + city + "&APPID=" + APIkey;
+      var queryURL = "https://api.openweathermap.org/data/2.5/weather?lat=35&lon=139&appid=" + city + "&appid=" + APIkey;
       $.ajax({
           url: queryURL,
           method: "GET"
       }).then(serverResponded);
+      console.log(queryURL);
   }
 
     function serverResponded(response) {

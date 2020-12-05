@@ -67,7 +67,7 @@ $(document).ready(function () {
     /* APPLICATION LOGIC */
 
   function getcurrentClimate(city) {
-      var queryURL = "https://api.openweathermap.org/data/2.5/weather?lat=35&lon=139&appid=" + city + "&appid=" + APIkey;
+      var queryURL = "https://api.openweathermap.org/data/2.5/weather?lat=35&lon=139&appid=" + APIkey;
       $.ajax({
           url: queryURL,
           method: "GET"
@@ -115,7 +115,7 @@ $(document).ready(function () {
 
     //get the uv index for searched city
   function UVIndex(ln, lt) {
-      var uvqURL = "https://api.openweathmap.org/data/2.5/uvi?appid=" + APIkey + "&lat=" + lt + "&lon=" + ln;
+      var uvqURL = "https://api.openweathermap.org/data/2.5/uvi?appid=" + APIkey + "&lat=" + lt + "&lon=" + ln;
       $.ajax({
           url: uvqURL,
           method: "GET"

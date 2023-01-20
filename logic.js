@@ -3,21 +3,11 @@ $(document).ready(function () {
   
     /* APPLICATION VARIABLES */
     var APIkey = "e37669453cb2f31f17855c4bb977dcf2";
-  
-  var currentCity = $(".hometown"); 
-  var clearSearches = $("#clear-button");
-  var currentUvindex = $("#uvIndex");
-  var currentClimate = $("#currentClimate");
-  var currentHumidity = $("#currentHumid");
-  var currentWindSpeed = $("#windSpeed");
-  //only real citys will run
-  var realCity = [];
+    var clearSearches = $("#clear-button");
+    var currentUvindex = $("#uvIndex"); 
+    var realCity = [];
 
-
-  
-
-
-    /* APPLICATION LOGIC */
+ 
 
   function getcurrentClimate(location) {
     console.log(location, "location:")
@@ -35,6 +25,7 @@ $(document).ready(function () {
         let iconDaddy = response.list[0].weather[0].icon
         let iconDaddyUrl = `https://openweathermap.org/img/w/${iconDaddy}.png`
         let iconDescription = response.list[0].weather[0].description
+    
         console.log(iconDescription)
 
         let weatherShit = $(`
@@ -45,39 +36,41 @@ $(document).ready(function () {
                  </h2>              
                  <img src="${iconDaddyUrl}" alt="${iconDescription}"/>  
                  <p>${iconDescription}</p>
+                 <p>wind-speed: ${response.list[0].wind.speed} </p>
+                 <p>wind-degree: ${response.list[0].wind.deg} </p>
+                 <p>wind-gusts: ${response.list[0].wind.gust} </p>
              </div>
-           <div  class="card-info">   
-                <p>temp : ${response.list[0].main.temp}</p>
-                <p>feels like : ${response.list[0].main.feels_like}</p>
-                <p>humidity: ${response.list[0].main.humidity}</p> 
+           <div  class="card-info"> 
+                <h3>Weather</h3>                
+                <p>temp: ${response.list[0].main.temp} degrees</p>
+                <p>feels like: ${response.list[0].main.feels_like} degrees</p>               
+                <p>humidity: ${response.list[0].main.humidity}%</p> 
           </div>       
         </div>
        
         `)
 
         $(".ajax-section").append(weatherShit)
+        serverResponded(response)
       })
+
+
+
+      var uvqURL = "https://api.openweathermap.org/data/2.5/uvi?appid=" + APIkey + "&lat=" + lt + "&lon=" + ln;
+      $.ajax({
+          url: uvqURL,
+          method: "GET"
+      }).then(function (response) {
+          $(currentUvindex).html(response.value);
+      });
      
   }
 
     function serverResponded(response) {
-      console.log(response, "yo dooot");
+      console.log(response, "yo dooot");      
+    
 
-      // display the icons that correspond with the weather output
      
-      // var iconURL = "https://openweathermap.org/img/wn/" + weatherIcon + "@2x.png";
-      // var date = new Date(response.dt * 1000).toLocaleDateString();
-      // $(currentCity).html(response.name + "(" + date + ") " + "<img src=" + iconURL + ">");
-      // var tempF = (response.main.temp - 273.15) * 1.80 + 32;
-      // $(currentClimate).html((tempF).toFixed(2) + "&#8457");
-      // //get the humidity level for the city searched
-      // $(currentHumidity).html(response.main.humidity + "%");
-      // //get the wind speed for the city searched
-      // var wS = response.wind.speed;
-      // var windsMph = (wS * 2.237).toFixed(1);
-      // $(currentWindSpeed).html(windsMph + "MPH");
-
-      UVIndex(response.coord.lon, response.coord.lat);
       forecast(response.id);
       if (response.cod == 200) {
           realCity = JSON.parse(localStorage.getItem("cityname"));
@@ -112,13 +105,7 @@ $(document).ready(function () {
 
     //get the uv index for searched city
   function UVIndex(ln, lt) {
-      var uvqURL = "https://api.openweathermap.org/data/2.5/uvi?appid=" + APIkey + "&lat=" + lt + "&lon=" + ln;
-      $.ajax({
-          url: uvqURL,
-          method: "GET"
-      }).then(function (response) {
-          $(currentUvindex).html(response.value);
-      });
+     
 
   }
 
@@ -126,13 +113,13 @@ $(document).ready(function () {
     //5 day forecast
   function forecast(cityid) {
       var dayOver = false;
-      var queryForcastUrl = "https://api.openweathermap.org/data/2.5/forecast?id=" + cityid + "&appid=" + APIkey;
+      var queryForcastUrl = `https://api.openweathermap.org/data/2.5/forecast?id=${cityid}&appid=${APIkey}`;
       $.ajax({
           url: queryForcastUrl,
           method: "GET"
       }).then(function (response) {
           for (let i = 0; i < 5; i++) {
-              var date = new Date((respose.list[((i + 1) * 8) - 1].dt) * 1000).toLocaleDateString();
+              let date = new Date((response.list[((i + 1) * 8) - 1].dt) * 1000).toLocaleDateString();
               // var iconCode = response.list[((i + 1) * 8) - 1].weatyher[0].icon;
               // var iconURL = "https://openweathermap.org/img/wn/" + iconCode + ".png";
               var tempK = response.list[((i + 1) * 8) - 1].main.humidity;

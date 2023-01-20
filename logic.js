@@ -3,10 +3,8 @@ $(document).ready(function () {
   
     /* APPLICATION VARIABLES */
     var APIkey = "e37669453cb2f31f17855c4bb977dcf2";
-  var city = "";
-  var searchStr = $(".search-bar"); 
-  var currentCity = $(".hometown");
-  var searchButton = $(".fa-search");
+  
+  var currentCity = $(".hometown"); 
   var clearSearches = $("#clear-button");
   var currentUvindex = $("#uvIndex");
   var currentClimate = $("#currentClimate");
@@ -16,67 +14,26 @@ $(document).ready(function () {
   var realCity = [];
 
 
-    /* EVENT LISTENERS */
-    //click events
-  $(searchButton).on("click", displayWeather);
-  $(document).on("click", invokePastSearch);
-  $(window).on("load", loadLastCity);
-  $("#clear-button").on("click", clearSearches);
-
-
-    /* EVENT HANDLERS */
-    function displayWeather(event) {     
-      event.preventDefault();
-      city = searchStr.val();
-      if (city !== "") {
-          getcurrentClimate(city);
-          console.log(city);
-      }
-  }
-
-    function invokePastSearch(event) {
-      var lisEl = event.target;
-      if (event.target.matches("li")) {
-          city = lisEl.textContent;
-          getcurrentClimate(city);
-      }
-  }
-
-    //saving searches so you can leave and refference the weather again
-    function loadLastCity() {
-      $(".cities").empty();
-      var realCity = JSON.parse(localStorage.getItem("cityname"));
-      if (realCity !== null) {
-        city = realCity[realCity.length - 1];
-        getcurrentClimate(city);
-            //load the last city in the rCity array
-          addToList(realCity[realCity.length-1]);
-      }
-     
-  }
-
-    //if in any case you want to clear the search history. you can do so.
-  function clearSearches(event) {
-      event.preventDefault();
-      realCity = [];
-      localStorage.removeItem("cityname");
-      document.location.reload();
-  }
+  
 
 
     /* APPLICATION LOGIC */
 
-  function getcurrentClimate(city) {
-      var queryURL = "https://api.openweathermap.org/data/2.5/weather?lat=35&lon=139&appid=" + APIkey;
+  function getcurrentClimate(location) {
+    let {lat} = location
+    let { lon } = location
+    let city = location.name
+    
+      var queryURL = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${APIkey}` ;
       $.ajax({
           url: queryURL,
           method: "GET"
-      }).then(serverResponded);
-      console.log(queryURL);
+      }).then(serverResponded(city, data[0]))
+      console.log(serverResponded);
   }
 
     function serverResponded(response) {
-      console.log(response);
+      console.log(response, "yo");
 
       // display the icons that correspond with the weather output
       var weatherIcon = response.weather[0].icon;
@@ -95,10 +52,10 @@ $(document).ready(function () {
       UVIndex(response.coord.lon, response.coord.lat);
       forecast(response.id);
       if (response.cod == 200) {
-          rCity = JSON.parse(localStorage.getItem("cityname"));
+          realCity = JSON.parse(localStorage.getItem("cityname"));
           console.log(rCity);
-          if (rCity == null) {
-              rCity.push(city.toUpperCase());
+          if (realCity == null) {
+              realCity.push(city.toUpperCase());
               localStorage.setItem("cityname", JSON.stringify(rCity));
               addToList(city);
           } else {
@@ -110,6 +67,18 @@ $(document).ready(function () {
               }
           }
       }
+  }
+
+  function fetchCoords(city) {
+    let apiUrl = `https://api.openweathermap.org/geo/1.0/direct?q=${city}&limit=5&appid=${APIkey}`
+
+    $.ajax({
+      url: apiUrl,
+      method: "GET"
+    }).then(function (data) {
+      console.log(data[0])
+      getcurrentClimate(data[0])
+    })
   }
 
 
@@ -134,7 +103,7 @@ $(document).ready(function () {
           url: queryForcastUrl,
           method: "GET"
       }).then(function (response) {
-          for (i = 0; i < 5; i++) {
+          for (let i = 0; i < 5; i++) {
               var date = new Date((respose.list[((i + 1) * 8) - 1].dt) * 1000).toLocaleDateString();
               var iconCode = response.list[((i + 1) * 8) - 1].weatyher[0].icon;
               var iconURL = "https://openweathermap.org/img/wn/" + iconCode + ".png";
@@ -149,16 +118,61 @@ $(document).ready(function () {
   }
 
   //placing searched citys on a list
-  function addToList(rC) {
-      var listEl = $("<li>" + rC.toUpperCase() + "</li>");
+  function addToList(realCity) {
+      var listEl = $("<li>" + realCity.toUpperCase() + "</li>");
       $(listEl).attr("class", "list-group-item");
-      $(listEl).attr("data-value", rC.toUpperCase());
+      $(listEl).attr("data-value", realCity.toUpperCase());
       $(".list-group").append(listEl);
   }
 
 
   
+    /* EVENT LISTENERS */
+    //click events
+    $(".button-dad").on("click", displayWeather);
+    $(document).on("click", invokePastSearch);
+    $(window).on("load", loadLastCity);
+    $("#clear-button").on("click", clearSearches);
   
+  
+      /* EVENT HANDLERS */
+      function displayWeather(event) {     
+        event.preventDefault();
+       let search = $("#search").val();
+        if (search !== "") {
+            fetchCoords(search);
+            console.log(search, "yoyuoy");
+        }
+    }
+  
+      function invokePastSearch(event) {
+        var lisEl = event.target;
+        if (event.target.matches("li")) {
+            city = lisEl.textContent;
+            getcurrentClimate(city);
+        }
+    }
+  
+      //saving searches so you can leave and refference the weather again
+      function loadLastCity() {
+        $(".cities").empty();
+        var realCity = JSON.parse(localStorage.getItem("cityname"));
+        if (realCity !== null) {
+          city = realCity[realCity.length - 1];
+          getcurrentClimate(city);
+              //load the last city in the rCity array
+            addToList(realCity[realCity.length-1]);
+        }
+       
+    }
+  
+      //if in any case you want to clear the search history. you can do so.
+    function clearSearches(event) {
+        event.preventDefault();
+        realCity = [];
+        localStorage.removeItem("cityname");
+        document.location.reload();
+    }
   
   
   

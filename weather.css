@@ -3,10 +3,13 @@ body{
     background-repeat: no-repeat;  
 }
 
+.allofit{
+    height:100vh;
+}
 .list-group{
     display: flex;
     flex-direction: column;
-    width: 30%;
+    width: 10rem;
 }
 
 
@@ -15,5 +18,12 @@ h1{
     text-align: center;
 
 }
+
+.main-card{
+    display:flex;
+
+}
+
+
 
 

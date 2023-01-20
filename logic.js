@@ -20,34 +20,62 @@ $(document).ready(function () {
     /* APPLICATION LOGIC */
 
   function getcurrentClimate(location) {
+    console.log(location, "location:")
     let {lat} = location
     let { lon } = location
     let city = location.name
     
-      var queryURL = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${APIkey}` ;
+      var queryURL = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=imperial&appid=${APIkey}` ;
       $.ajax({
           url: queryURL,
           method: "GET"
-      }).then(serverResponded(city, data[0]))
-      console.log(serverResponded);
+      }).then(function (response) {
+        console.log(response.list[0])
+        console.log(response.list[0].weather)
+        let iconDaddy = response.list[0].weather[0].icon
+        let iconDaddyUrl = `https://openweathermap.org/img/w/${iconDaddy}.png`
+        let iconDescription = response.list[0].weather[0].description
+        console.log(iconDescription)
+
+        let weatherShit = $(`
+        <div class="main-card">
+            <div class="card-heading">
+               <h2>
+               ${city} 
+                 </h2>              
+                 <img src="${iconDaddyUrl}" alt="${iconDescription}"/>  
+                 <p>${iconDescription}</p>
+             </div>
+           <div  class="card-info">   
+                <p>temp : ${response.list[0].main.temp}</p>
+                <p>feels like : ${response.list[0].main.feels_like}</p>
+                <p>humidity: ${response.list[0].main.humidity}</p> 
+          </div>       
+        </div>
+       
+        `)
+
+        $(".ajax-section").append(weatherShit)
+      })
+     
   }
 
     function serverResponded(response) {
-      console.log(response, "yo");
+      console.log(response, "yo dooot");
 
       // display the icons that correspond with the weather output
-      var weatherIcon = response.weather[0].icon;
-      var iconURL = "https://openweathermap.org/img/wn/" + weatherIcon + "@2x.png";
-      var date = new Date(response.dt * 1000).toLocaleDateString();
-      $(currentCity).html(response.name + "(" + date + ") " + "<img src=" + iconURL + ">");
-      var tempF = (response.main.temp - 273.15) * 1.80 + 32;
-      $(currentClimate).html((tempF).toFixed(2) + "&#8457");
-      //get the humidity level for the city searched
-      $(currentHumidity).html(response.main.humidity + "%");
-      //get the wind speed for the city searched
-      var wS = response.wind.speed;
-      var windsMph = (wS * 2.237).toFixed(1);
-      $(currentWindSpeed).html(windsMph + "MPH");
+     
+      // var iconURL = "https://openweathermap.org/img/wn/" + weatherIcon + "@2x.png";
+      // var date = new Date(response.dt * 1000).toLocaleDateString();
+      // $(currentCity).html(response.name + "(" + date + ") " + "<img src=" + iconURL + ">");
+      // var tempF = (response.main.temp - 273.15) * 1.80 + 32;
+      // $(currentClimate).html((tempF).toFixed(2) + "&#8457");
+      // //get the humidity level for the city searched
+      // $(currentHumidity).html(response.main.humidity + "%");
+      // //get the wind speed for the city searched
+      // var wS = response.wind.speed;
+      // var windsMph = (wS * 2.237).toFixed(1);
+      // $(currentWindSpeed).html(windsMph + "MPH");
 
       UVIndex(response.coord.lon, response.coord.lat);
       forecast(response.id);
@@ -105,8 +133,8 @@ $(document).ready(function () {
       }).then(function (response) {
           for (let i = 0; i < 5; i++) {
               var date = new Date((respose.list[((i + 1) * 8) - 1].dt) * 1000).toLocaleDateString();
-              var iconCode = response.list[((i + 1) * 8) - 1].weatyher[0].icon;
-              var iconURL = "https://openweathermap.org/img/wn/" + iconCode + ".png";
+              // var iconCode = response.list[((i + 1) * 8) - 1].weatyher[0].icon;
+              // var iconURL = "https://openweathermap.org/img/wn/" + iconCode + ".png";
               var tempK = response.list[((i + 1) * 8) - 1].main.humidity;
               //adding dynamic html
               $(".col-sm-8" + i).html(date);

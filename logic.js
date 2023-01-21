@@ -4,29 +4,27 @@ $(document).ready(function () {
     /* APPLICATION VARIABLES */
     var APIkey = "e37669453cb2f31f17855c4bb977dcf2";
     var clearSearches = $("#clear-button");
-    var currentUvindex = $("#uvIndex"); 
-    var realCity = [];
+    var savedCity = [];
 
  
 
   function getcurrentClimate(location) {
     console.log(location, "location:")
-    let {lat} = location
+    let { lat } = location
     let { lon } = location
     let city = location.name
+
     
       var queryURL = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=imperial&appid=${APIkey}` ;
       $.ajax({
           url: queryURL,
           method: "GET"
-      }).then(function (response) {
-        console.log(response.list[0])
-        console.log(response.list[0].weather)
+      }).then(function (response) {            
         let iconDaddy = response.list[0].weather[0].icon
         let iconDaddyUrl = `https://openweathermap.org/img/w/${iconDaddy}.png`
         let iconDescription = response.list[0].weather[0].description
     
-        console.log(iconDescription)
+        
 
         let weatherShit = $(`
         <div class="main-card">
@@ -52,42 +50,62 @@ $(document).ready(function () {
 
         $(".ajax-section").append(weatherShit)
         serverResponded(response)
+       
+        
       })
 
+      getUvDaddy(location)
 
-
-      var uvqURL = "https://api.openweathermap.org/data/2.5/uvi?appid=" + APIkey + "&lat=" + lt + "&lon=" + ln;
-      $.ajax({
-          url: uvqURL,
-          method: "GET"
-      }).then(function (response) {
-          $(currentUvindex).html(response.value);
-      });
+     
      
   }
 
-    function serverResponded(response) {
-      console.log(response, "yo dooot");      
+  function getUvDaddy(location){
+  let {lat} = location
+  let {lon} = location
     
+    var uvqURL = `https://api.openweathermap.org/data/2.5/uvi?lat=${lat}&lon=${lon}&appid=${APIkey}`;
+        $.ajax({
+            url: uvqURL,
+            method: "GET"
+        }).then(function (response) {
+          
 
-     
-      forecast(response.id);
-      if (response.cod == 200) {
-          realCity = JSON.parse(localStorage.getItem("cityname"));
-          console.log(rCity);
-          if (realCity == null) {
-              realCity.push(city.toUpperCase());
-              localStorage.setItem("cityname", JSON.stringify(rCity));
-              addToList(city);
-          } else {
-              if (find(city) > 0) {
-                  rCity.push(city.toUpperCase());
-                  localStorage.setItem("cityname", JSON.stringify(rCity));
-                  addTolist(city);
+            let uvIndexThinggy = $(`
+            <p class="uv-index-color">uv Index be like: ${response.value}</p>
+            `)
 
-              }
-          }
-      }
+            $(".card-info").append(uvIndexThinggy)
+
+            if(response.value < 3){
+              $(".uv-index-color").css("background-color", "green");
+            }
+            else if (response.value < 6){
+              $(".uv-index-color").css("background-color", "yellow");
+            }
+            else if (response.value < 9){
+              $(".uv-index-color").css("background-color", "orange");
+            }
+            else if (response.value < 11){
+              $(".uv-index-color").css("background-color", "red");
+            }
+            else{
+              $(".uv-index-color").css("background-color", "purple");
+            }
+        });
+    
+  }
+
+    function serverResponded(response) {
+      console.log(response, "yo dooot");    
+      forecast(response.city.id);
+      console.log(response, "what the fuck is id")
+     let searchedCity = response.city.name;   
+     localStorage.setItem("cityname", JSON.stringify(searchedCity))
+     let gimmeCity = JSON.parse(localStorage.getItem('cityname'))
+     savedCity.push(gimmeCity)
+     console.log(savedCity)
+     addToList(gimmeCity)
   }
 
   function fetchCoords(city) {
@@ -96,18 +114,12 @@ $(document).ready(function () {
     $.ajax({
       url: apiUrl,
       method: "GET"
-    }).then(function (data) {
-      console.log(data[0])
+    }).then(function (data) {      
       getcurrentClimate(data[0])
     })
   }
 
 
-    //get the uv index for searched city
-  function UVIndex(ln, lt) {
-     
-
-  }
 
 
     //5 day forecast
@@ -118,65 +130,76 @@ $(document).ready(function () {
           url: queryForcastUrl,
           method: "GET"
       }).then(function (response) {
+        $(".five-day-cards").empty();
           for (let i = 0; i < 5; i++) {
               let date = new Date((response.list[((i + 1) * 8) - 1].dt) * 1000).toLocaleDateString();
-              // var iconCode = response.list[((i + 1) * 8) - 1].weatyher[0].icon;
-              // var iconURL = "https://openweathermap.org/img/wn/" + iconCode + ".png";
-              var tempK = response.list[((i + 1) * 8) - 1].main.humidity;
+              var iconCode = response.list[((i + 1) * 8) - 1].weather[0].icon;
+              var iconURL = "https://openweathermap.org/img/wn/" + iconCode + ".png";
+              var tempF = response.list[((i + 1) * 8) - 1].main.humidity;
               //adding dynamic html
-              $(".col-sm-8" + i).html(date);
-              $(".col-sm-8" + i).html("<img src=" + iconURL + ">");
-              $(".col-sm-8" + i).html(tempF + "&#8457");
-              $(".col-sm-8" + i).html(humidity + "%");
+               
+              let fiveDayCards = $(`
+              
+              <div class="five-day-card">
+                  <div class"five-day-info">
+                  <p>${date}</p>
+                  <p>temp: ${tempF}</p>
+                  <p>humidity: ${response.list[0].main.humidity} %</p>
+                  <img src="${iconURL}"/>
+                  </div>
+              </div>
+              
+              `)
+
+              $(".five-day-cards").append(fiveDayCards)
+           
           }
       });
   }
 
   //placing searched citys on a list
-  function addToList(realCity) {
-      var listEl = $("<li>" + realCity.toUpperCase() + "</li>");
+  function addToList(gimmeCity) {
+      var listEl = $(`
+      <li">${gimmeCity.toUpperCase()}</li>      
+      `);
       $(listEl).attr("class", "list-group-item");
-      $(listEl).attr("data-value", realCity.toUpperCase());
+      $(listEl).attr("data-value", gimmeCity.toUpperCase());
       $(".list-group").append(listEl);
   }
 
 
   
-    /* EVENT LISTENERS */
-    //click events
-    $(".button-dad").on("click", displayWeather);
-    $(document).on("click", invokePastSearch);
-    $(window).on("load", loadLastCity);
-    $("#clear-button").on("click", clearSearches);
+ 
   
   
       /* EVENT HANDLERS */
-      function displayWeather(event) {     
+      function displayWeather(event) {
+        $(".ajax-section").empty();     
         event.preventDefault();
-       let search = $("#search").val();
+        let search = $("#search").val();
         if (search !== "") {
             fetchCoords(search);
             console.log(search, "yoyuoy");
         }
     }
   
-      function invokePastSearch(event) {
-        var lisEl = event.target;
+      function invokePastSearch(event) {      
+        $(".list-group") = event.target;
         if (event.target.matches("li")) {
-            city = lisEl.textContent;
-            getcurrentClimate(city);
+          let  city = $(".list-group").textContent;
+          console.log(city)
+            displayWeather(city);
         }
     }
   
       //saving searches so you can leave and refference the weather again
       function loadLastCity() {
-        $(".cities").empty();
+        $(".ajax-section").empty();
         var realCity = JSON.parse(localStorage.getItem("cityname"));
         if (realCity !== null) {
-          city = realCity[realCity.length - 1];
-          getcurrentClimate(city);
-              //load the last city in the rCity array
-            addToList(realCity[realCity.length-1]);
+         let city = realCity;
+          getcurrentClimate(city);          
+            addToList(realCity);
         }
        
     }
@@ -189,7 +212,12 @@ $(document).ready(function () {
         document.location.reload();
     }
   
-  
+     /* EVENT LISTENERS */
+    //click events
+    $(".button-dad").on("click", displayWeather);
+    $(".list-group").on("click", invokePastSearch);
+    $(window).on("load", loadLastCity);
+    $("#clear-button").on("click", clearSearches);
   
   
 

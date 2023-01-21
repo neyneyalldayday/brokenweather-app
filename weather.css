@@ -48,6 +48,9 @@ body{
    
     background-color: #92aac1;
 }
+.list-group-item:hover{   
+    cursor: pointer;
+}
 
 
 

@@ -1,12 +1,8 @@
 //set up global variables
 $(document).ready(function () {
-  
-    /* APPLICATION VARIABLES */
     var APIkey = "e37669453cb2f31f17855c4bb977dcf2";
     var clearSearches = $("#clear-button");
-    var savedCity = [];
-
- 
+    var savedCity = []; 
 
   function getcurrentClimate(location) {
     console.log(location, "location:")
@@ -22,9 +18,7 @@ $(document).ready(function () {
       }).then(function (response) {            
         let iconDaddy = response.list[0].weather[0].icon
         let iconDaddyUrl = `https://openweathermap.org/img/w/${iconDaddy}.png`
-        let iconDescription = response.list[0].weather[0].description
-    
-        
+        let iconDescription = response.list[0].weather[0].description      
 
         let weatherShit = $(`
         <div class="main-card">
@@ -49,16 +43,11 @@ $(document).ready(function () {
         `)
 
         $(".ajax-section").append(weatherShit)
-        serverResponded(response)
-       
-        
+        serverResponded(response)       
       })
-
-      getUvDaddy(location)
-
-     
-     
+      getUvDaddy(location)    
   }
+
 
   function getUvDaddy(location){
   let {lat} = location
@@ -69,8 +58,6 @@ $(document).ready(function () {
             url: uvqURL,
             method: "GET"
         }).then(function (response) {
-          
-
             let uvIndexThinggy = $(`
             <p class="uv-index-color">uv Index be like: ${response.value}</p>
             `)
@@ -92,20 +79,21 @@ $(document).ready(function () {
             else{
               $(".uv-index-color").css("background-color", "purple");
             }
-        });
-    
+      });    
   }
 
     function serverResponded(response) {
-      console.log(response, "yo dooot");    
-      forecast(response.city.id);
-      console.log(response, "what the fuck is id")
-     let searchedCity = response.city.name;   
-     localStorage.setItem("cityname", JSON.stringify(searchedCity))
-     let gimmeCity = JSON.parse(localStorage.getItem('cityname'))
-     savedCity.push(gimmeCity)
-     console.log(savedCity)
-     addToList(gimmeCity)
+      forecast(response.city.id); 
+
+      let storedSearch = $("#search").val();         
+      let searchedCity = response.city.name;  
+      savedCity.push(searchedCity) 
+      localStorage.setItem(searchedCity, storedSearch)
+
+      var listEl = $(`
+         <li class="list-group-item">${storedSearch}</li>      
+      `);     
+       $(".list-group").append(listEl);      
   }
 
   function fetchCoords(city) {
@@ -118,10 +106,6 @@ $(document).ready(function () {
       getcurrentClimate(data[0])
     })
   }
-
-
-
-
     //5 day forecast
   function forecast(cityid) {
       var dayOver = false;
@@ -155,32 +139,16 @@ $(document).ready(function () {
            
           }
       });
-  }
-
-  //placing searched citys on a list
-  function addToList(gimmeCity) {
-      var listEl = $(`
-      <li">${gimmeCity.toUpperCase()}</li>      
-      `);
-      $(listEl).attr("class", "list-group-item");
-      $(listEl).attr("data-value", gimmeCity.toUpperCase());
-      $(".list-group").append(listEl);
-  }
-
-
+  }  
   
- 
-  
-  
-      /* EVENT HANDLERS */
-      function displayWeather(event) {
+        function displayWeather(event) {
         $(".ajax-section").empty();     
         event.preventDefault();
         let search = $("#search").val();
         if (search !== "") {
             fetchCoords(search);
             console.log(search, "yoyuoy");
-        }
+        }        
     }
   
       function invokePastSearch(event) {      
@@ -188,23 +156,20 @@ $(document).ready(function () {
         if (event.target.matches("li")) {
           let  city = $(".list-group").textContent;
           console.log(city)
-            displayWeather(city);
+            loadLastCity(city);
         }
     }
   
-      //saving searches so you can leave and refference the weather again
+     
       function loadLastCity() {
         $(".ajax-section").empty();
-        var realCity = JSON.parse(localStorage.getItem("cityname"));
+        var realCity = JSON.parse(localStorage.getItem(storedSearch));
         if (realCity !== null) {
          let city = realCity;
-          getcurrentClimate(city);          
-            addToList(realCity);
-        }
-       
-    }
-  
-      //if in any case you want to clear the search history. you can do so.
+            fetchCoords(city);            
+        }       
+    }  
+     
     function clearSearches(event) {
         event.preventDefault();
         realCity = [];
@@ -218,7 +183,4 @@ $(document).ready(function () {
     $(".list-group").on("click", invokePastSearch);
     $(window).on("load", loadLastCity);
     $("#clear-button").on("click", clearSearches);
-  
-  
-
 });

@@ -95,7 +95,7 @@ $(document).ready(function () {
       }            
   }
 
-  function fetchCoords(city) {
+  function fetchCoords(city) {    
     let apiUrl = `https://api.openweathermap.org/geo/1.0/direct?q=${city}&limit=5&appid=${APIkey}`
 
     $.ajax({
@@ -144,8 +144,10 @@ $(document).ready(function () {
         event.preventDefault();
         let search = $("#search").val();
         if (search !== "") {
-            fetchCoords(search);            
-        }        
+          $("#search").val("")
+            fetchCoords(search);                      
+        }  
+           
     } 
   
       function invokePastSearch(event) {        

@@ -2,16 +2,12 @@
 $(document).ready(function () {
     var APIkey = "e37669453cb2f31f17855c4bb977dcf2";
     var clearSearches = $("#clear-button");
-    var savedCity = []; 
-  
-   
+    var savedCity = [];    
 
-  function getcurrentClimate(location) {
-    // console.log(location, "location:")
+  function getcurrentClimate(location) {  
     let { lat } = location
     let { lon } = location
     let city = location.name
-
     
       var queryURL = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=imperial&appid=${APIkey}` ;
       $.ajax({
@@ -40,10 +36,8 @@ $(document).ready(function () {
                 <p>feels like: ${response.list[0].main.feels_like} degrees</p>               
                 <p>humidity: ${response.list[0].main.humidity}%</p> 
           </div>       
-        </div>
-       
+        </div>       
         `)
-
         $(".ajax-section").append(weatherShit)
         serverResponded(response)       
       })
@@ -63,7 +57,6 @@ $(document).ready(function () {
             let uvIndexThinggy = $(`
             <p class="uv-index-color">uv Index be like: ${response.value}</p>
             `)
-
             $(".card-info").append(uvIndexThinggy)
 
             if(response.value < 3){
@@ -83,20 +76,23 @@ $(document).ready(function () {
             }
       });    
   }
-
+  let addedCities = new Set();
     function serverResponded(response) {
 
       forecast(response.city.id); 
 
       let storedSearch = $("#search").val();         
-      let searchedCity = response.city.name;  
-      savedCity.push(searchedCity)                        
-      localStorage.setItem(searchedCity,storedSearch)
+      let searchedCity = response.city.name; 
 
-      var listEl = $(`
-         <li class="list-group-item">${searchedCity}</li>      
-      `);     
-       $(".list-group").append(listEl);      
+      if(!addedCities.has(searchedCity)){
+        addedCities.add(searchedCity)
+        savedCity.push(searchedCity)                        
+        localStorage.setItem(searchedCity,storedSearch)        
+        var listEl = $(`
+           <li class="list-group-item">${searchedCity}</li>      
+        `);      
+          $(".list-group").append(listEl);
+      }            
   }
 
   function fetchCoords(city) {
@@ -109,9 +105,9 @@ $(document).ready(function () {
       getcurrentClimate(data[0])
     })
   }
-    //5 day forecast
+
   function forecast(cityid) {
-      var dayOver = false;
+     
       var queryForcastUrl = `https://api.openweathermap.org/data/2.5/forecast?id=${cityid}&appid=${APIkey}`;
       $.ajax({
           url: queryForcastUrl,
@@ -129,6 +125,7 @@ $(document).ready(function () {
               
               <div class="five-day-card">
                   <div class"five-day-info">
+                  <p class="date">Date</p>
                   <p>${date}</p>
                   <p>temp: ${tempF}</p>
                   <p>humidity: ${response.list[0].main.humidity} %</p>
@@ -137,9 +134,7 @@ $(document).ready(function () {
               </div>
               
               `)
-
-              $(".five-day-cards").append(fiveDayCards)
-           
+              $(".five-day-cards").append(fiveDayCards)           
           }
       });
   }  
@@ -151,44 +146,29 @@ $(document).ready(function () {
         if (search !== "") {
             fetchCoords(search);            
         }        
-    }
-
-    let addedCities = new Set();
+    } 
   
       function invokePastSearch(event) {        
         if (event.target.matches("li")) {        
-         let city = event.target.textContent
-         if(!addedCities.has(city)){
-          console.log(city, "saldk;")
-          $(".ajax-section").empty();
-           addedCities.add(city)
-                   fetchCoords(city);
-
-        }
-                  
+         let city = event.target.textContent       
+          $(".ajax-section").empty();       
+                   fetchCoords(city);                  
       }
-    }
-  
+    }  
      
       function loadDefaultLocation() {
         $(".ajax-section").empty()
         let defautlCity = "San Antonio"
               fetchCoords(defautlCity);             
-    }  
-    // function saveSearchResult() {
-    //   localStorage.setItem(savedCity)
-    //   console.log(savedCity)
-    // }
+    }   
      
     function clearSearches(event) {
         event.preventDefault();
         realCity = [];
         localStorage.removeItem("cityname");
         document.location.reload();
-    }
+    }  
   
-     /* EVENT LISTENERS */
-    //click events
     $(".button-dad").on("click", displayWeather);
     $(".list-group").on("click", invokePastSearch);
     $(window).on("load", loadDefaultLocation);

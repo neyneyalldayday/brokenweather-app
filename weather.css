@@ -1,10 +1,19 @@
 body{
     background-image: linear-gradient(122deg,#5aaefd,rgb(250, 239, 143)) ;
-    background-repeat: no-repeat;  
+    background-repeat: no-repeat;
+    padding: 0;
+    margin: 0;     
+}
+header{
+    background-image:linear-gradient(122deg,#d7b37a,rgb(66, 41, 123)) ;
+    padding: 20px; 
+    text-align: center;
+    font-size: 3em;
+    margin-bottom: 1rem;
 }
 
 .allofit{
-    height:100vh;
+    height: fit-content;
 }
 
 .top-section{
@@ -38,15 +47,21 @@ body{
     background-color: rgb(210, 132, 132);
     border-radius: 5px;
 }
+.date{
+    margin: 0;
+    padding: 0;
+    text-decoration: underline;
+}
 .list-group{
     display: flex;
     flex-direction: column;
     width: 10rem;
 }
 
-.list-group-item{
-   
-    background-color: #92aac1;
+.list-group-item{   
+    background-color: #6d98bf;
+    margin: .5rem;
+    border-radius: 5px;
 }
 .list-group-item:hover{   
     cursor: pointer;
@@ -56,11 +71,13 @@ body{
 
 h1{
     text-align: center;
+    color: rgb(191, 237, 244);
 
 }
 #hometown{
     text-align: center;
     margin: 2rem;
+    color:rgba(6, 54, 90, 0.979);
 }
 
 .uv-index-color{
@@ -71,6 +88,7 @@ h1{
 .five-day-cards{
     display: flex;
     justify-content: space-evenly;
+    margin-bottom: 1rem;
 }
 
 .five-day-card{
@@ -86,6 +104,27 @@ h1{
     flex-direction: row;
 }
 
+@media screen and (max-width: 768px){
+   .top-section{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+   } 
+   .five-day-cards{
+    display: flex;
+    flex-direction: column;
+    max-width: 100%; 
+    align-items: center;
+   }
+}
+
+
+@media screen and (max-width: 420px) {
+    .main-card{
+        flex-direction: column;
+    }
+}
 
 
 

@@ -3,9 +3,11 @@ $(document).ready(function () {
     var APIkey = "e37669453cb2f31f17855c4bb977dcf2";
     var clearSearches = $("#clear-button");
     var savedCity = []; 
+  
+   
 
   function getcurrentClimate(location) {
-    console.log(location, "location:")
+    // console.log(location, "location:")
     let { lat } = location
     let { lon } = location
     let city = location.name
@@ -83,15 +85,16 @@ $(document).ready(function () {
   }
 
     function serverResponded(response) {
+
       forecast(response.city.id); 
 
       let storedSearch = $("#search").val();         
       let searchedCity = response.city.name;  
-      savedCity.push(searchedCity) 
-      localStorage.setItem(searchedCity, storedSearch)
+      savedCity.push(searchedCity)                        
+      localStorage.setItem(searchedCity,storedSearch)
 
       var listEl = $(`
-         <li class="list-group-item">${storedSearch}</li>      
+         <li class="list-group-item">${searchedCity}</li>      
       `);     
        $(".list-group").append(listEl);      
   }
@@ -102,7 +105,7 @@ $(document).ready(function () {
     $.ajax({
       url: apiUrl,
       method: "GET"
-    }).then(function (data) {      
+    }).then(function (data) {         
       getcurrentClimate(data[0])
     })
   }
@@ -142,33 +145,40 @@ $(document).ready(function () {
   }  
   
         function displayWeather(event) {
-        $(".ajax-section").empty();     
+          $(".ajax-section").empty();
         event.preventDefault();
         let search = $("#search").val();
         if (search !== "") {
-            fetchCoords(search);
-            console.log(search, "yoyuoy");
+            fetchCoords(search);            
         }        
     }
+
+    let addedCities = new Set();
   
-      function invokePastSearch(event) {      
-        $(".list-group") = event.target;
-        if (event.target.matches("li")) {
-          let  city = $(".list-group").textContent;
-          console.log(city)
-            loadLastCity(city);
+      function invokePastSearch(event) {        
+        if (event.target.matches("li")) {        
+         let city = event.target.textContent
+         if(!addedCities.has(city)){
+          console.log(city, "saldk;")
+          $(".ajax-section").empty();
+           addedCities.add(city)
+                   fetchCoords(city);
+
         }
+                  
+      }
     }
   
      
-      function loadLastCity() {
-        $(".ajax-section").empty();
-        var realCity = JSON.parse(localStorage.getItem(storedSearch));
-        if (realCity !== null) {
-         let city = realCity;
-            fetchCoords(city);            
-        }       
+      function loadDefaultLocation() {
+        $(".ajax-section").empty()
+        let defautlCity = "San Antonio"
+              fetchCoords(defautlCity);             
     }  
+    // function saveSearchResult() {
+    //   localStorage.setItem(savedCity)
+    //   console.log(savedCity)
+    // }
      
     function clearSearches(event) {
         event.preventDefault();
@@ -181,6 +191,6 @@ $(document).ready(function () {
     //click events
     $(".button-dad").on("click", displayWeather);
     $(".list-group").on("click", invokePastSearch);
-    $(window).on("load", loadLastCity);
+    $(window).on("load", loadDefaultLocation);
     $("#clear-button").on("click", clearSearches);
 });

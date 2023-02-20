@@ -175,4 +175,5 @@ $(document).ready(function () {
     $(".list-group").on("click", invokePastSearch);
     $(window).on("load", loadDefaultLocation);
     $("#clear-button").on("click", clearSearches);
+    //woogie booogie
 });
